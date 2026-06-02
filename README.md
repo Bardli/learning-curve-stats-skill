@@ -4,23 +4,25 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-16a34a.svg)](LICENSE)
 [![Training Curves](https://img.shields.io/badge/ML-training%20curve%20analysis-be123c)](SKILL.md)
 
-**让 AI 不只是“看训练曲线”，而是用统计证据理解训练过程。**
+Teach AI agents to analyze training curves with statistical evidence, not visual guesswork.
 
-`learning-curve-stats` 是一个面向 Codex / Claude / AI coding agent 的轻量 skill。它告诉 agent：面对 TensorBoard、W&B、MLflow、CSV、JSONL 或训练日志里的 learning curve 时，应该先把曲线转成可解释的统计量，再判断收敛、过拟合、震荡、平台期、最佳 checkpoint 和下一步调参方向。
+[Read this in Simplified Chinese](README.zh-CN.md)
+
+`learning-curve-stats` is a lightweight skill for Codex, Claude, and other AI coding agents. It tells the agent how to turn TensorBoard, W&B, MLflow, CSV, JSONL, or training-log metric histories into interpretable statistics before diagnosing convergence, overfitting, instability, plateauing, checkpoint choice, and next tuning steps.
 
 ![Learning Curve Stats overview](assets/learning-curve-stats-overview.svg)
 
 ## Why This Exists
 
-很多训练曲线看起来“差不多”，但真实含义完全不同：
+Many learning curves look similar while meaning very different things:
 
-- validation loss 停了，是正常收敛，还是学习率太低？
-- train loss 还在降，validation metric 不动，是过拟合，还是验证集太小？
-- 曲线很抖，是 batch 太小、LR 太高，还是只是 RL/reward 本身方差大？
-- 最后一个 checkpoint 真的是最好的吗？
-- 新方法比 baseline 好，还是只是在一个 seed 上刚好运气好？
+- Did validation loss plateau because the model converged, or because the learning rate is too low?
+- If train loss keeps falling but validation stops improving, is that overfitting or just a tiny validation set?
+- Is a noisy curve caused by a high learning rate, a small batch size, RL reward variance, or nondeterministic evaluation?
+- Is the final checkpoint really better than the earlier best checkpoint?
+- Did a new method beat the baseline, or did one seed just get lucky?
 
-这个 skill 的目标是让 agent 避免凭肉眼猜图，而是输出类似这样的证据：
+This skill pushes the agent toward evidence like this:
 
 ```json
 {
@@ -45,40 +47,36 @@ flowchart LR
   E --> F["Actionable next step<br/>checkpoint, LR, batch size, regularization, data"]
 ```
 
-The important rule is simple:
+Core rule:
 
-> The agent should prefer raw scalar histories over screenshots. A chart is useful, but the diagnosis should come from numbers.
+> Prefer raw scalar histories over screenshots. A chart is useful, but the diagnosis should come from numbers.
 
-## 统计图谱 · Visual Guide
+## Visual Guide
 
-> 每一种统计,都是向曲线提出的一个问题。
-> *Each statistic is a question put to the curve.*
+Each statistic is a question put to the curve. The left side shows a typical learning-curve shape; the right side shows what an agent can infer from it.
 
-一种统计方法,一幅图谱:**左侧是典型的 learning curve,右侧是 AI 由此读出的信息。**
-One figure per method — the curve on the left, what an agent reads from it on the right.
-
-### Smoothing · 平滑
+### Smoothing
 ![Smoothing](assets/diagrams/01-smoothing.svg)
 
-### Slope · 斜率
+### Slope
 ![Slope](assets/diagrams/02-slope.svg)
 
-### Acceleration · 加速度
+### Acceleration
 ![Acceleration](assets/diagrams/03-acceleration.svg)
 
-### Roughness & Noise · 噪声
+### Roughness And Noise
 ![Roughness](assets/diagrams/04-roughness.svg)
 
-### Spikes & Instability · 异常尖峰
+### Spikes And Instability
 ![Spikes](assets/diagrams/05-spikes.svg)
 
-### Plateau & Best Checkpoint · 平台期与最佳 checkpoint
+### Plateau And Best Checkpoint
 ![Plateau](assets/diagrams/06-plateau.svg)
 
-### Train–Validation Gap · 泛化差
+### Train-Validation Gap
 ![Train-Val Gap](assets/diagrams/07-train-val-gap.svg)
 
-### Multi-seed Comparison · 多 seed 比较
+### Multi-Seed Comparison
 ![Multi-seed](assets/diagrams/08-multi-seed.svg)
 
 ## Statistical Tools And What They Reveal
@@ -104,74 +102,71 @@ One figure per method — the curve on the left, what an agent reads from it on 
 | `mean_curve` / `std_curve` | Multi-seed average and variance | Whether a method is robust or just lucky |
 | `confidence_interval` | Uncertainty around a run group | Whether a method beats baseline beyond seed noise |
 
-## Agent 可以通过统计手段获得什么信息
+## What The Agent Can Answer
 
-| Agent 想回答的问题 | 推荐统计手段 | 能获得的信息 |
+| Question | Recommended evidence | Information gained |
 | --- | --- | --- |
-| 训练还在有效学习吗？ | recent slope, improvement per 1k steps, remaining gain | 最近阶段是否仍有实质提升，是否值得继续训练 |
-| 是否进入平台期？ | plateau detection, late slope, recent-window regression | 从哪一步开始收益变小，是否应该停训或调整 scheduler |
-| 是否过拟合？ | train-validation gap, gap slope, best validation step | train 继续变好但 validation 变差的起点和严重程度 |
-| 曲线是否太抖？ | residual std, roughness, rolling std, sign-change rate | 优化是否不稳定，LR/batch/eval 方差是否可能有问题 |
-| 有没有异常 spike？ | robust residual threshold, MAD, max spike | 是否存在坏 batch、数值溢出、评估 nondeterminism 或日志异常 |
-| 学习速度是在变快还是变慢？ | acceleration, stage-wise slope | warmup/scheduler 是否生效，模型是否接近收敛 |
-| 最佳 checkpoint 是哪一个？ | best_step, max drawdown, overtraining steps | final checkpoint 是否可靠，是否应该回滚到验证集最佳点 |
-| 新方法真的比 baseline 好吗？ | matched-budget comparison, mean/std across seeds, confidence interval | 提升是否超过 seed 方差，是否只是单次实验运气好 |
-| 是欠拟合还是训练不足？ | train slope, validation slope, gap size, final metric | 模型容量、训练时长、学习率或数据是否可能不足 |
-| 该调什么超参？ | slope + roughness + gap combined diagnosis | LR、batch size、regularization、scheduler、训练长度的优先级 |
+| Is training still useful? | recent slope, improvement per 1k steps, remaining gain | Whether more training is likely to pay off |
+| Has the run plateaued? | plateau detection, late slope, recent-window regression | Where marginal gains shrink and whether to stop or change scheduler |
+| Is the model overfitting? | train-validation gap, gap slope, best validation step | When validation starts diverging from train behavior |
+| Is the curve too noisy? | residual std, roughness, rolling std, sign-change rate | Whether LR, batch size, validation variance, or logging might be unstable |
+| Are there abnormal spikes? | robust residual threshold, MAD, max spike | Bad batches, numeric overflow, nondeterministic eval, or logging failures |
+| Is learning speeding up or slowing down? | acceleration, stage-wise slope | Whether warmup/scheduler behavior makes sense and whether convergence is near |
+| Which checkpoint should be used? | best_step, max drawdown, overtraining steps | Whether the final checkpoint is safe or rollback is better |
+| Did a method really beat baseline? | matched-budget comparison, mean/std across seeds, confidence interval | Whether the improvement is larger than seed variance |
+| Is this underfitting or just undertraining? | train slope, validation slope, gap size, final metric | Whether capacity, training length, LR, or data quality is the likely issue |
+| What should be tuned next? | combined slope + roughness + gap diagnosis | Priority among LR, batch size, regularization, scheduler, or training length |
 
 ## How To Read The Numbers
 
-### Slope
+### Metric Direction
 
-The skill normalizes metrics into a higher-is-better `score`.
-
-- `slope > 0`: model is improving.
-- `slope ~= 0`: model has likely plateaued.
-- `slope < 0`: validation behavior is getting worse.
-
-For loss curves, the skill flips the sign first:
+Normalize each metric into a higher-is-better `score` before interpreting shape:
 
 ```text
-score = -loss
+loss-like metric: score = -metric
+accuracy-like metric: score = metric
 ```
 
-So a positive score slope still means the loss is decreasing.
+This keeps slope and gap interpretations consistent across losses, accuracy, Dice, IoU, F1, reward, perplexity, and error rates.
+
+### Slope
+
+- `slope > 0`: the model is improving.
+- `slope ~= 0`: the model has likely plateaued.
+- `slope < 0`: validation behavior is getting worse.
+
+Use a regression line over a window rather than single-point differences when the metric is noisy.
 
 ### Acceleration
 
-Acceleration tells whether learning speed is changing.
-
-- `acceleration > 0`: improvement is speeding up, often after warmup.
-- `acceleration ~= 0`: linear progress or flat region.
+- `acceleration > 0`: improvement speed is increasing, often after warmup.
+- `acceleration ~= 0`: linear progress or a flat region.
 - `acceleration < 0`: improvement is slowing, often near convergence.
 
-Because acceleration is sensitive to noise, the skill tells the agent to estimate it from a smoothed curve and report it by window, not as a single fragile point.
+Acceleration is sensitive to noise, so estimate it from the smoothed curve and report it by window.
 
 ### Roughness And Residual Noise
-
-Roughness answers: “Is this curve hard to trust?”
 
 High roughness or residual noise can suggest:
 
 - learning rate too high
 - batch size too small
 - noisy validation set
-- RL/reward variance
+- high-variance reward
 - unstable data pipeline
 - mixed precision overflow or bad batches
 
-Low roughness is not always good. If the metric is smooth but not improving, the model may be underfitting or the learning rate may be too low.
+Low roughness is not always good. If the curve is smooth but not improving, the model may be underfitting or the learning rate may be too low.
 
 ### Train-Validation Gap
 
-The skill makes the agent align train and validation metrics by step before comparing them.
-
-Typical interpretations:
+Align train and validation metrics by step before comparing them.
 
 - Train and validation both improve, gap stable: healthy convergence.
 - Train improves, validation worsens, gap grows: overfitting.
-- Both train and validation are bad: underfitting, optimization issue, or insufficient training.
-- Validation is better than train: possible with dropout, augmentation, label smoothing, or easier validation data.
+- Both train and validation are poor: underfitting, optimization issue, insufficient training, or data trouble.
+- Validation better than train can happen with dropout, augmentation, label smoothing, or easier validation data.
 
 ## Example Diagnoses
 
@@ -241,8 +236,6 @@ increase LR, improve scheduler, train longer, or increase model capacity.
 
 ## Recommended Agent Report
 
-When the skill is triggered, the agent should produce a compact report like this:
-
 ```markdown
 ## Learning Curve Diagnosis
 
@@ -265,13 +258,11 @@ Use the checkpoint around step 3900, shorten training, and test stronger regular
 
 ## Installation
 
-Copy this folder into your Codex skills directory or another skill registry your agent can load:
-
 ```bash
 git clone https://github.com/Bardli/learning-curve-stats-skill.git
 ```
 
-Then ask your agent to use the skill when analyzing training curves:
+Then ask your agent:
 
 ```text
 Use the learning-curve-stats skill to analyze these TensorBoard metrics.
@@ -279,10 +270,6 @@ Tell me whether the run is overfitting, plateaued, unstable, or still improving.
 ```
 
 ## Supported Inputs
-
-The skill is format-agnostic. It tells the agent what to compute once scalar histories are available.
-
-Good inputs:
 
 - TensorBoard event files
 - W&B run history
@@ -296,13 +283,7 @@ Good inputs:
 
 This repo currently contains the AI skill instructions, not a full metric parser or plotting CLI. It is designed to guide an agent that can already read files, run Python/R, or query experiment trackers.
 
-A future version could add scripts for:
-
-- TensorBoard event extraction
-- W&B history export
-- automatic curve plotting
-- JSON evidence report generation
-- multi-seed aggregation
+A future version could add scripts for TensorBoard extraction, W&B export, automatic plotting, JSON evidence reports, and multi-seed aggregation.
 
 ## License
 
