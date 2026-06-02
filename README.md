@@ -49,6 +49,38 @@ The important rule is simple:
 
 > The agent should prefer raw scalar histories over screenshots. A chart is useful, but the diagnosis should come from numbers.
 
+## 统计图谱 · Visual Guide
+
+> 每一种统计,都是向曲线提出的一个问题。
+> *Each statistic is a question put to the curve.*
+
+一种统计方法,一幅图谱:**左侧是典型的 learning curve,右侧是 AI 由此读出的信息。**
+One figure per method — the curve on the left, what an agent reads from it on the right.
+
+### Smoothing · 平滑
+![Smoothing](assets/diagrams/01-smoothing.svg)
+
+### Slope · 斜率
+![Slope](assets/diagrams/02-slope.svg)
+
+### Acceleration · 加速度
+![Acceleration](assets/diagrams/03-acceleration.svg)
+
+### Roughness & Noise · 噪声
+![Roughness](assets/diagrams/04-roughness.svg)
+
+### Spikes & Instability · 异常尖峰
+![Spikes](assets/diagrams/05-spikes.svg)
+
+### Plateau & Best Checkpoint · 平台期与最佳 checkpoint
+![Plateau](assets/diagrams/06-plateau.svg)
+
+### Train–Validation Gap · 泛化差
+![Train-Val Gap](assets/diagrams/07-train-val-gap.svg)
+
+### Multi-seed Comparison · 多 seed 比较
+![Multi-seed](assets/diagrams/08-multi-seed.svg)
+
 ## Statistical Tools And What They Reveal
 
 | Statistical tool | What it measures | What the agent can infer |
