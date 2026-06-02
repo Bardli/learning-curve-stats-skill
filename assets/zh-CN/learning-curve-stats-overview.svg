@@ -5,7 +5,7 @@
   <rect x="28" y="28" width="1144" height="564" rx="22" fill="#111827" stroke="#334155" stroke-width="2"></rect>
 
   <text x="70" y="84" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="34" font-weight="700">训练曲线统计</text>
-  <text x="70" y="118" fill="#cbd5e1" font-family="Arial, Helvetica, sans-serif" font-size="18">把嘈杂训练曲线转成 AI 可推理的统计证据。</text>
+  <text x="70" y="118" fill="#cbd5e1" font-family="Arial, Helvetica, sans-serif" font-size="18"><tspan x="70" dy="0">把嘈杂训练曲线转成</tspan><tspan x="70" dy="24">AI 可推理的统计证据。</tspan></text>
 
   <rect x="70" y="160" width="420" height="330" rx="18" fill="#020617" stroke="#334155" stroke-width="2"></rect>
   <text x="98" y="202" fill="#e2e8f0" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="700">原始曲线与平滑曲线</text>
@@ -24,19 +24,19 @@
   <text x="568" y="202" fill="#e2e8f0" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="700">统计证据</text>
   <g font-family="Arial, Helvetica, sans-serif" font-size="16">
     <rect x="570" y="230" width="300" height="38" rx="10" fill="#0f766e"></rect>
-    <text x="590" y="255" fill="#ecfeff">斜率：validation 是否仍在改善？</text>
+    <text x="590" y="255" fill="#ecfeff">斜率：验证集仍改善？</text>
     <rect x="570" y="282" width="300" height="38" rx="10" fill="#2563eb"></rect>
-    <text x="590" y="307" fill="#eff6ff">加速度：学习速度是否在变慢？</text>
+    <text x="590" y="307" fill="#eff6ff">加速度：学习在变慢？</text>
     <rect x="570" y="334" width="300" height="38" rx="10" fill="#7c3aed"></rect>
-    <text x="590" y="359" fill="#f5f3ff">roughness：优化是否嘈杂？</text>
+    <text x="590" y="359" fill="#f5f3ff">噪声：优化过于抖动？</text>
     <rect x="570" y="386" width="300" height="38" rx="10" fill="#be123c"></rect>
-    <text x="590" y="411" fill="#fff1f2">spikes：是否有不稳定事件？</text>
+    <text x="590" y="411" fill="#fff1f2">尖峰：不稳定事件？</text>
     <rect x="570" y="438" width="300" height="38" rx="10" fill="#ca8a04"></rect>
-    <text x="590" y="463" fill="#fefce8">gap：模型是否过拟合？</text>
+    <text x="590" y="463" fill="#fefce8">gap：模型过拟合？</text>
   </g>
 
   <rect x="980" y="160" width="130" height="330" rx="18" fill="#020617" stroke="#334155" stroke-width="2"></rect>
-  <text x="1004" y="202" fill="#e2e8f0" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="700">Agent</text>
+  <text x="1004" y="202" fill="#e2e8f0" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="700">智能体</text>
   <text x="1005" y="245" fill="#cbd5e1" font-family="Arial, Helvetica, sans-serif" font-size="15">诊断</text>
   <text x="1005" y="272" fill="#cbd5e1" font-family="Arial, Helvetica, sans-serif" font-size="15">过拟合</text>
   <text x="1005" y="299" fill="#cbd5e1" font-family="Arial, Helvetica, sans-serif" font-size="15">平台期</text>
@@ -50,6 +50,6 @@
   <path d="M940 325 H968" stroke="#94a3b8" stroke-width="4" stroke-linecap="round"></path>
   <path d="M960 315 L972 325 L960 335" stroke="#94a3b8" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path>
 
-  <rect x="70" y="525" width="1040" height="34" rx="17" fill="#1e293b"></rect>
-  <text x="94" y="548" fill="#e2e8f0" font-family="Arial, Helvetica, sans-serif" font-size="15">原则：不要让 agent 只凭好看的图猜；给它原始 scalar history、稳健统计量和简短证据报告。</text>
+  <rect x="70" y="515" width="1040" height="54" rx="17" fill="#1e293b"></rect>
+  <text x="94" y="535" fill="#e2e8f0" font-family="Arial, Helvetica, sans-serif" font-size="15"><tspan x="94" dy="0">原则：给智能体原始曲线历史、</tspan><tspan x="94" dy="18">稳健统计量和简短证据报告。</tspan></text>
 </svg>
